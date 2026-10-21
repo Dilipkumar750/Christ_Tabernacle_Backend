@@ -5,11 +5,17 @@ import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const uploadDir = path.join(__dirname, '..', 'uploads');
+const uploadDir = process.env.VERCEL
+  ? path.join('/tmp', 'uploads')
+  : path.join(__dirname, '..', 'uploads');
 
-// Ensure upload directory exists
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+// Ensure upload directory exists safely (read-only fs on serverless)
+try {
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+} catch (err) {
+  console.warn('⚠️ Could not create upload directory:', err.message);
 }
 
 // Multer storage
