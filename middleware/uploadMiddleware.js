@@ -35,7 +35,7 @@ const storage = multer.diskStorage({
 });
 
 // File filter (accept images only)
-const fileFilter = (req, file, cb) => {
+const imageFilter = (req, file, cb) => {
   const allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
   if (allowedMimes.includes(file.mimetype)) {
     cb(null, true);
@@ -44,8 +44,31 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
+// File filter for PPT/PPTX files
+const pptFilter = (req, file, cb) => {
+  const allowedMimes = [
+    'application/vnd.ms-powerpoint',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    'application/octet-stream', // fallback for some browsers uploading .pptx
+  ];
+  const ext = path.extname(file.originalname).toLowerCase();
+  if (allowedMimes.includes(file.mimetype) || ext === '.ppt' || ext === '.pptx') {
+    cb(null, true);
+  } else {
+    cb(new Error('Only PowerPoint files (.ppt, .pptx) are allowed!'), false);
+  }
+};
+
+// Image uploader (10MB)
 export const upload = multer({
   storage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
-  fileFilter,
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: imageFilter,
+});
+
+// PPT uploader (50MB)
+export const uploadPPT = multer({
+  storage,
+  limits: { fileSize: 50 * 1024 * 1024 },
+  fileFilter: pptFilter,
 });

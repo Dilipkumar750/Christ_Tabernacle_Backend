@@ -9,35 +9,20 @@ const songSchema = new mongoose.Schema(
     },
     language: {
       type: String,
-      required: true,
       default: 'Tamil',
       trim: true,
     },
     theme: {
       type: String,
-      default: 'Praise & Worship',
+      default: 'Adoration & Grace',
       trim: true,
     },
     key: {
       type: String,
-      default: 'C Major',
-      trim: true,
-    },
-    tempo: {
-      type: String,
-      default: 'Medium',
-      trim: true,
-    },
-    lyrics: {
-      type: String,
-      required: true,
-    },
-    audioUrl: {
-      type: String,
       default: '',
       trim: true,
     },
-    youtubeUrl: {
+    tempo: {
       type: String,
       default: '',
       trim: true,
@@ -47,20 +32,48 @@ const songSchema = new mongoose.Schema(
       default: "Christ's Tabernacle Worship",
       trim: true,
     },
-    uploadDate: {
+    youtubeUrl: {
       type: String,
       default: '',
       trim: true,
     },
-    views: {
+    pptUrl: {
       type: String,
       default: '',
       trim: true,
+    },
+    audioUrl: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    lyrics: {
+      type: String,
+      required: true,
+    },
+    englishLyrics: {
+      type: String,
+      default: '',
+    },
+    chords: {
+      type: String,
+      default: '',
+    },
+    tags: {
+      type: [String],
+      default: [],
+    },
+    views: {
+      type: String,
+      default: '0 views',
     },
     duration: {
       type: String,
       default: '',
-      trim: true,
+    },
+    uploadDate: {
+      type: String,
+      default: '',
     },
     order: {
       type: Number,
@@ -75,6 +88,9 @@ const songSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+// Add index for searching
+songSchema.index({ title: 'text', lyrics: 'text', author: 'text', theme: 'text' });
 
 const Song = mongoose.model('Song', songSchema);
 export default Song;
