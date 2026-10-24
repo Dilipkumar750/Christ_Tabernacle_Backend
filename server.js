@@ -73,28 +73,28 @@ app.get('/', (req, res) => {
     church: "Christ's Tabernacle Prayer & Worship Centre API",
     database: dbStatus,
     endpoints: {
-      health: '/api/health',
-      auth: '/api/auth',
-      hero: '/api/hero',
-      testimonials: '/api/testimonials',
-      photos: '/api/photos',
-      songs: '/api/songs',
-      upload: '/api/upload',
+      health: '/health',
+      auth: '/auth',
+      hero: '/hero',
+      testimonials: '/testimonials',
+      photos: '/photos',
+      songs: '/songs',
+      upload: '/upload',
     },
     timestamp: new Date().toISOString(),
   });
 });
 
-// Mount API Routes (support both /api/* and root /*)
-app.use(['/api/auth', '/auth'], authRoutes);
-app.use(['/api/hero', '/hero'], heroRoutes);
-app.use(['/api/testimonials', '/testimonials'], testimonialRoutes);
-app.use(['/api/photos', '/photos'], photoRoutes);
-app.use(['/api/songs', '/songs'], songRoutes);
-app.use(['/api/upload', '/upload'], uploadRoutes);
+// Mount API Routes (support both /* and root /*)
+app.use(['/auth', '/auth'], authRoutes);
+app.use(['/hero', '/hero'], heroRoutes);
+app.use(['/testimonials', '/testimonials'], testimonialRoutes);
+app.use(['/photos', '/photos'], photoRoutes);
+app.use(['/songs', '/songs'], songRoutes);
+app.use(['/upload', '/upload'], uploadRoutes);
 
 // Health check endpoint
-app.get(['/api/health', '/health'], (req, res) => {
+app.get(['/health', '/health'], (req, res) => {
   const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
   res.status(200).json({
     status: 'online',
