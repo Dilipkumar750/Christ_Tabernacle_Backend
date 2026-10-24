@@ -85,16 +85,16 @@ app.get('/', (req, res) => {
   });
 });
 
-// Mount API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/hero', heroRoutes);
-app.use('/api/testimonials', testimonialRoutes);
-app.use('/api/photos', photoRoutes);
-app.use('/api/songs', songRoutes);
-app.use('/api/upload', uploadRoutes);
+// Mount API Routes (support both /api/* and root /*)
+app.use(['/api/auth', '/auth'], authRoutes);
+app.use(['/api/hero', '/hero'], heroRoutes);
+app.use(['/api/testimonials', '/testimonials'], testimonialRoutes);
+app.use(['/api/photos', '/photos'], photoRoutes);
+app.use(['/api/songs', '/songs'], songRoutes);
+app.use(['/api/upload', '/upload'], uploadRoutes);
 
 // Health check endpoint
-app.get('/api/health', (req, res) => {
+app.get(['/api/health', '/health'], (req, res) => {
   const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
   res.status(200).json({
     status: 'online',

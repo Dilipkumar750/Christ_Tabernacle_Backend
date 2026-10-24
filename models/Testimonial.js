@@ -44,6 +44,23 @@ const testimonialSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    type: {
+      type: String,
+      enum: ['Written', 'Audio'],
+      default: 'Written',
+    },
+    audioUrl: {
+      type: String,
+      default: '',
+    },
+    duration: {
+      type: String,
+      default: '3:30',
+    },
+    language: {
+      type: String,
+      default: 'Tamil & English',
+    },
   },
   {
     timestamps: true,

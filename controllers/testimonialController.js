@@ -74,7 +74,7 @@ export const getAllTestimonialsAdmin = async (req, res) => {
 // @route POST /api/testimonials
 export const createTestimonial = async (req, res) => {
   try {
-    const { name, location, category, title, story, verse, date, isApproved, isFeatured } = req.body;
+    const { name, location, category, title, story, verse, date, isApproved, isFeatured, type, audioUrl, duration, language } = req.body;
 
     if (!name || !title || !story) {
       return res.status(400).json({ success: false, message: 'Name, title, and story are required' });
@@ -93,6 +93,10 @@ export const createTestimonial = async (req, res) => {
         date: date || new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
         isApproved: approved,
         isFeatured: isFeatured || false,
+        type: type || 'Written',
+        audioUrl: audioUrl || '',
+        duration: duration || '3:30',
+        language: language || 'Tamil & English',
       });
 
       return res.status(201).json({
