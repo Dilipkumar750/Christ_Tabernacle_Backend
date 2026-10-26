@@ -5,6 +5,7 @@ import HeroSlide from '../models/HeroSlide.js';
 import Testimonial from '../models/Testimonial.js';
 import Photo from '../models/Photo.js';
 import Song from '../models/Song.js';
+import Member from '../models/Member.js';
 import { isDbConnected, readStore, writeStore } from '../utils/localStore.js';
 
 const generateToken = (id) => {
@@ -167,7 +168,7 @@ export const getMe = async (req, res) => {
 export const getDashboardStats = async (req, res) => {
   try {
     if (isDbConnected()) {
-      const [heroCount, activeHeroCount, testimonialCount, pendingTestimonialCount, photoCount, songCount] =
+      const [heroCount, activeHeroCount, testimonialCount, pendingTestimonialCount, photoCount, songCount, memberCount, activeMemberCount] =
         await Promise.all([
           HeroSlide.countDocuments(),
           HeroSlide.countDocuments({ isActive: true }),
@@ -175,11 +176,14 @@ export const getDashboardStats = async (req, res) => {
           Testimonial.countDocuments({ isApproved: false }),
           Photo.countDocuments(),
           Song.countDocuments(),
+          Member.countDocuments(),
+          Member.countDocuments({ status: 'Active' }),
         ]);
 
       const recentTestimonials = await Testimonial.find().sort({ createdAt: -1 }).limit(5);
       const recentPhotos = await Photo.find().sort({ createdAt: -1 }).limit(4);
       const recentSongs = await Song.find().sort({ createdAt: -1 }).limit(5);
+      const recentMembers = await Member.find().sort({ createdAt: -1 }).limit(5);
 
       return res.status(200).json({
         success: true,
@@ -193,11 +197,13 @@ export const getDashboardStats = async (req, res) => {
           },
           gallery: { total: photoCount },
           lyrics: { total: songCount },
+          members: { total: memberCount, active: activeMemberCount },
         },
         recent: {
           testimonials: recentTestimonials,
           photos: recentPhotos,
           songs: recentSongs,
+          members: recentMembers,
         },
       });
     } else {
@@ -207,9 +213,11 @@ export const getDashboardStats = async (req, res) => {
       const testimonials = store.testimonials || [];
       const photos = store.photos || [];
       const songs = store.songs || [];
+      const members = store.members || [];
 
       const activeHeroCount = heroes.filter((h) => h.isActive).length;
       const pendingTestimonialCount = testimonials.filter((t) => !t.isApproved).length;
+      const activeMemberCount = members.filter((m) => m.status === 'Active').length;
 
       return res.status(200).json({
         success: true,
@@ -223,11 +231,13 @@ export const getDashboardStats = async (req, res) => {
           },
           gallery: { total: photos.length },
           lyrics: { total: songs.length },
+          members: { total: members.length, active: activeMemberCount },
         },
         recent: {
           testimonials: testimonials.slice(-5).reverse(),
           photos: photos.slice(-4).reverse(),
           songs: songs.slice(-5).reverse(),
+          members: members.slice(-5).reverse(),
         },
       });
     }

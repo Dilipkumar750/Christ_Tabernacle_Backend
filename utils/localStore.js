@@ -289,6 +289,84 @@ As long as life endures.`,
       createdAt: new Date().toISOString(),
     },
   ],
+  members: [
+    {
+      _id: 'mem_1',
+      name: 'Sister Hannah Devapiriyam',
+      dob: '1992-05-14',
+      age: 34,
+      gender: 'Female',
+      mobile: '+91 98401 23456',
+      email: 'hannah.dev@example.com',
+      address: 'No. 24, Grace Garden Street, Velachery, Chennai - 600042',
+      occupation: 'School Educator',
+      bloodGroup: 'B+',
+      maritalStatus: 'Married',
+      baptized: 'Yes',
+      emergencyContact: '+91 98401 65432 (Brother Michael)',
+      membershipDate: '2021-04-10',
+      status: 'Active',
+      notes: 'Active in choir and intercessory prayer fellowship.',
+      createdAt: new Date().toISOString(),
+    },
+    {
+      _id: 'mem_2',
+      name: 'Brother Joshua Ebenezer',
+      dob: '1985-11-20',
+      age: 40,
+      gender: 'Male',
+      mobile: '+91 97910 87654',
+      email: 'joshua.ebenezer@example.com',
+      address: 'Plot 12, Bethel Enclave, Tambaram East, Chennai - 600059',
+      occupation: 'Software Engineer',
+      bloodGroup: 'O+',
+      maritalStatus: 'Married',
+      baptized: 'Yes',
+      emergencyContact: '+91 97910 87650 (Rachel - Wife)',
+      membershipDate: '2020-01-15',
+      status: 'Active',
+      notes: 'Youth mentor & media ministry volunteer.',
+      createdAt: new Date().toISOString(),
+    },
+    {
+      _id: 'mem_3',
+      name: 'Brother Samuel Vijayakumar',
+      dob: '1998-03-08',
+      age: 28,
+      gender: 'Male',
+      mobile: '+91 94440 11223',
+      email: 'samuel.vijay@example.com',
+      address: 'Flat 3B, Zion Heights, Medavakkam Main Road, Chennai - 600100',
+      occupation: 'Civil Engineer',
+      bloodGroup: 'A+',
+      maritalStatus: 'Single',
+      baptized: 'Yes',
+      emergencyContact: '+91 94440 11220 (Father)',
+      membershipDate: '2023-08-22',
+      status: 'Active',
+      notes: 'Sound engineering and sanctuary setup volunteer.',
+      createdAt: new Date().toISOString(),
+    },
+    {
+      _id: 'mem_4',
+      name: 'Sister Priscilla Mary',
+      dob: '1968-07-25',
+      age: 58,
+      gender: 'Female',
+      mobile: '+91 98844 55667',
+      email: '',
+      address: 'Old Door No. 15, Altar Lane, Pallikaranai, Chennai - 600100',
+      occupation: 'Homemaker',
+      bloodGroup: 'AB+',
+      maritalStatus: 'Married',
+      baptized: 'Yes',
+      emergencyContact: '+91 98844 55660 (David - Husband)',
+      membershipDate: '2019-10-05',
+      status: 'Active',
+      notes: 'Women fasting prayer coordinator.',
+      createdAt: new Date().toISOString(),
+    },
+  ],
 };
 
 // Check if db.json exists, if not initialize it
@@ -303,7 +381,12 @@ export const isDbConnected = () => {
 export const readStore = () => {
   try {
     const raw = fs.readFileSync(dbFilePath, 'utf-8');
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    if (!parsed.members) {
+      parsed.members = DEFAULT_STORE.members;
+      fs.writeFileSync(dbFilePath, JSON.stringify(parsed, null, 2), 'utf-8');
+    }
+    return parsed;
   } catch (err) {
     return DEFAULT_STORE;
   }
