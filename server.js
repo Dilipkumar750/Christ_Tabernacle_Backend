@@ -74,27 +74,27 @@ app.get('/', (req, res) => {
     church: "Christ's Tabernacle Prayer & Worship Centre API",
     database: dbStatus,
     endpoints: {
-      health: '/health',
-      auth: '/auth',
-      hero: '/hero',
-      testimonials: '/testimonials',
-      photos: '/photos',
-      songs: '/songs',
-      upload: '/upload',
-      members: '/members',
+      health: '/api/health',
+      auth: '/api/auth',
+      hero: '/api/hero',
+      testimonials: '/api/testimonials',
+      photos: '/api/photos',
+      songs: '/api/songs',
+      upload: '/api/upload',
+      members: '/api/members',
     },
     timestamp: new Date().toISOString(),
   });
 });
 
 // Mount API Routes (support both /* and root /*)
-app.use(['/auth', '/auth'], authRoutes);
-app.use(['/hero', '/hero'], heroRoutes);
-app.use(['/testimonials', '/testimonials'], testimonialRoutes);
-app.use(['/photos', '/photos'], photoRoutes);
-app.use(['/songs', '/songs'], songRoutes);
-app.use(['/upload', '/upload'], uploadRoutes);
-app.use(['/members', '/members'], memberRoutes);
+app.use(['/api/auth', '/auth'], authRoutes);
+app.use(['/api/hero', '/hero'], heroRoutes);
+app.use(['/api/testimonials', '/testimonials'], testimonialRoutes);
+app.use(['/api/photos', '/photos'], photoRoutes);
+app.use(['/api/songs', '/songs'], songRoutes);
+app.use(['/api/upload', '/upload'], uploadRoutes);
+app.use(['/api/members', '/members'], memberRoutes);
 
 // Health check endpoint
 app.get(['/health', '/health'], (req, res) => {

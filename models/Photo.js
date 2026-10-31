@@ -26,6 +26,11 @@ const photoSchema = new mongoose.Schema(
       type: String,
       default: () => new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
     },
+    year: {
+      type: String,
+      default: () => String(new Date().getFullYear()),
+      trim: true,
+    },
     isFeatured: {
       type: Boolean,
       default: false,

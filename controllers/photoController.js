@@ -1,15 +1,35 @@
 import Photo from '../models/Photo.js';
 import { isDbConnected, readStore, writeStore } from '../utils/localStore.js';
 
+// Helper to extract or fallback year
+const resolveYear = (year, date, createdAt) => {
+  if (year && String(year).trim()) return String(year).trim();
+  if (date) {
+    const match = String(date).match(/\b(19\d{2}|20\d{2})\b/);
+    if (match) return match[1];
+  }
+  if (createdAt) {
+    const d = new Date(createdAt);
+    if (!isNaN(d.getTime())) return String(d.getFullYear());
+  }
+  return String(new Date().getFullYear());
+};
+
 // @desc Get public photos
 // @route GET /api/photos
 export const getPublicPhotos = async (req, res) => {
   try {
-    const { category } = req.query;
+    const { category, year } = req.query;
 
     if (isDbConnected()) {
       const filter = {};
       if (category && category !== 'All') filter.category = category;
+      if (year && year !== 'All') {
+        filter.$or = [
+          { year: String(year) },
+          { date: { $regex: String(year), $options: 'i' } }
+        ];
+      }
       const photos = await Photo.find(filter).sort({ order: 1, createdAt: -1 });
       return res.status(200).json({ success: true, count: photos.length, data: photos });
     } else {
@@ -17,6 +37,12 @@ export const getPublicPhotos = async (req, res) => {
       let list = [...(store.photos || [])];
       if (category && category !== 'All') {
         list = list.filter((p) => p.category?.toLowerCase() === category.toLowerCase());
+      }
+      if (year && year !== 'All') {
+        list = list.filter((p) => {
+          const itemYear = resolveYear(p.year, p.date, p.createdAt);
+          return itemYear === String(year);
+        });
       }
       list.sort((a, b) => (a.order || 0) - (b.order || 0));
       return res.status(200).json({ success: true, count: list.length, data: list });
@@ -30,11 +56,17 @@ export const getPublicPhotos = async (req, res) => {
 // @route GET /api/photos/all
 export const getAllPhotosAdmin = async (req, res) => {
   try {
-    const { category } = req.query;
+    const { category, year } = req.query;
 
     if (isDbConnected()) {
       const filter = {};
       if (category && category !== 'All') filter.category = category;
+      if (year && year !== 'All') {
+        filter.$or = [
+          { year: String(year) },
+          { date: { $regex: String(year), $options: 'i' } }
+        ];
+      }
       const photos = await Photo.find(filter).sort({ order: 1, createdAt: -1 });
       return res.status(200).json({ success: true, count: photos.length, data: photos });
     } else {
@@ -42,6 +74,12 @@ export const getAllPhotosAdmin = async (req, res) => {
       let list = [...(store.photos || [])];
       if (category && category !== 'All') {
         list = list.filter((p) => p.category?.toLowerCase() === category.toLowerCase());
+      }
+      if (year && year !== 'All') {
+        list = list.filter((p) => {
+          const itemYear = resolveYear(p.year, p.date, p.createdAt);
+          return itemYear === String(year);
+        });
       }
       list.sort((a, b) => (a.order || 0) - (b.order || 0));
       return res.status(200).json({ success: true, count: list.length, data: list });
@@ -55,11 +93,13 @@ export const getAllPhotosAdmin = async (req, res) => {
 // @route POST /api/photos
 export const createPhoto = async (req, res) => {
   try {
-    const { title, category, image, caption, date, isFeatured, order } = req.body;
+    const { title, category, image, caption, date, year, isFeatured, order } = req.body;
 
     if (!title || !image) {
       return res.status(400).json({ success: false, message: 'Title and image are required' });
     }
+
+    const calculatedYear = resolveYear(year, date, null);
 
     if (isDbConnected()) {
       const newPhoto = await Photo.create({
@@ -68,6 +108,7 @@ export const createPhoto = async (req, res) => {
         image,
         caption: caption || '',
         date: date || new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+        year: calculatedYear,
         isFeatured: isFeatured || false,
         order: order !== undefined ? Number(order) : 0,
       });
@@ -81,6 +122,7 @@ export const createPhoto = async (req, res) => {
         image,
         caption: caption || '',
         date: date || new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+        year: calculatedYear,
         isFeatured: isFeatured || false,
         order: order !== undefined ? Number(order) : (store.photos?.length || 0) + 1,
         createdAt: new Date().toISOString(),
@@ -99,8 +141,13 @@ export const createPhoto = async (req, res) => {
 // @route PUT /api/photos/:id
 export const updatePhoto = async (req, res) => {
   try {
+    const updateData = { ...req.body };
+    if (!updateData.year && updateData.date) {
+      updateData.year = resolveYear(null, updateData.date, null);
+    }
+
     if (isDbConnected()) {
-      const updated = await Photo.findByIdAndUpdate(req.params.id, req.body, {
+      const updated = await Photo.findByIdAndUpdate(req.params.id, updateData, {
         new: true,
         runValidators: true,
       });
@@ -113,7 +160,8 @@ export const updatePhoto = async (req, res) => {
 
       store.photos[index] = {
         ...store.photos[index],
-        ...req.body,
+        ...updateData,
+        year: updateData.year || resolveYear(store.photos[index].year, updateData.date || store.photos[index].date, store.photos[index].createdAt),
         updatedAt: new Date().toISOString(),
       };
       writeStore(store);
