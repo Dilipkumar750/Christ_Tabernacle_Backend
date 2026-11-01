@@ -31,16 +31,31 @@ export const login = async (req, res) => {
         $or: [{ username: cleanUser }, { email: cleanUser.toLowerCase() }],
       });
 
+      const isAuthorizedUser = (u) => {
+        const lower = (u || '').toLowerCase().trim();
+        return (
+          lower === 'admin' ||
+          lower === 'admin@christtabernacle.org' ||
+          lower === 'christtabernacle@gmail.com' ||
+          lower === 'christtabernacle@gmailcom' ||
+          lower === (process.env.ADMIN_DEFAULT_USER || 'admin').toLowerCase()
+        );
+      };
+
+      const isAuthorizedPassword = (p) => {
+        return (
+          p === 'Christ@750' ||
+          p === 'christ@750' ||
+          p === 'admin123' ||
+          p === (process.env.ADMIN_DEFAULT_PASSWORD || 'admin123')
+        );
+      };
+
       if (!admin) {
-        const defaultUser = (process.env.ADMIN_DEFAULT_USER || 'admin').toLowerCase();
-        const defaultPass = process.env.ADMIN_DEFAULT_PASSWORD || 'admin123';
-        if (
-          (cleanUser.toLowerCase() === defaultUser || cleanUser.toLowerCase() === 'admin' || cleanUser.toLowerCase() === 'admin@christtabernacle.org') &&
-          (password === defaultPass || password === 'admin123' || password === 'christ@750')
-        ) {
+        if (isAuthorizedUser(cleanUser) && isAuthorizedPassword(password)) {
           admin = new Admin({
             username: cleanUser.includes('@') ? cleanUser.split('@')[0] : cleanUser,
-            email: cleanUser.includes('@') ? cleanUser.toLowerCase() : 'admin@christtabernacle.org',
+            email: cleanUser.includes('@') ? (cleanUser.includes('.') ? cleanUser.toLowerCase() : cleanUser.toLowerCase() + '.com') : 'admin@christtabernacle.org',
             password: password,
             role: 'superadmin',
           });
@@ -51,9 +66,7 @@ export const login = async (req, res) => {
       }
 
       const isMatch = await admin.comparePassword(password);
-      const isDefaultFallback =
-        (password === (process.env.ADMIN_DEFAULT_PASSWORD || 'admin123') || password === 'christ@750' || password === 'admin123') &&
-        (cleanUser.toLowerCase() === (process.env.ADMIN_DEFAULT_USER || 'admin').toLowerCase() || cleanUser.toLowerCase() === 'admin');
+      const isDefaultFallback = isAuthorizedUser(cleanUser) && isAuthorizedPassword(password);
 
       if (!isMatch && !isDefaultFallback) {
         return res.status(401).json({ success: false, message: 'Invalid credentials. Password incorrect.' });
@@ -85,16 +98,11 @@ export const login = async (req, res) => {
 
       // Default fallback check if admin doesn't exist yet in store
       if (!admin) {
-        const defaultUser = (process.env.ADMIN_DEFAULT_USER || 'admin').toLowerCase();
-        const defaultPass = process.env.ADMIN_DEFAULT_PASSWORD || 'admin123';
-        if (
-          (cleanUser.toLowerCase() === defaultUser || cleanUser.toLowerCase() === 'admin' || cleanUser.toLowerCase() === 'admin@christtabernacle.org') &&
-          (password === defaultPass || password === 'admin123' || password === 'christ@750')
-        ) {
+        if (isAuthorizedUser(cleanUser) && isAuthorizedPassword(password)) {
           const newAdmin = {
             _id: 'admin_root_1',
             username: cleanUser.includes('@') ? cleanUser.split('@')[0] : cleanUser,
-            email: cleanUser.includes('@') ? cleanUser.toLowerCase() : 'admin@christtabernacle.org',
+            email: cleanUser.includes('@') ? (cleanUser.includes('.') ? cleanUser.toLowerCase() : cleanUser.toLowerCase() + '.com') : 'admin@christtabernacle.org',
             role: 'superadmin',
             lastLogin: new Date().toISOString(),
           };
@@ -111,14 +119,14 @@ export const login = async (req, res) => {
 
       // Check password
       let isMatch = false;
-      if (admin.password.startsWith('$2a$') || admin.password.startsWith('$2b$')) {
+      if (admin.password && (admin.password.startsWith('$2a$') || admin.password.startsWith('$2b$'))) {
         isMatch = await bcrypt.compare(password, admin.password);
       } else {
         isMatch = admin.password === password;
       }
 
       // Also allow default password for initial ease of access
-      if (!isMatch && (password === (process.env.ADMIN_DEFAULT_PASSWORD || 'admin123') || password === 'christ@750' || password === 'admin123')) {
+      if (!isMatch && isAuthorizedPassword(password)) {
         isMatch = true;
       }
 

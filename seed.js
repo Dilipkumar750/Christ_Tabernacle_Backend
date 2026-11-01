@@ -14,7 +14,7 @@ const INITIAL_HERO_SLIDES = [
   {
     title: "Christ's Tabernacle Prayer & Worship Centre",
     subtitle: 'A House of Prayer • A Place of Deliverance • A Centre of Divine Healing',
-    tag: 'Established 1991',
+    tag: 'Established 2026',
     verse: 'Isaiah 56:7',
     actionText: 'Plan a Visit',
     actionLink: '/contact',

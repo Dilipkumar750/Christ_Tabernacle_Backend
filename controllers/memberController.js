@@ -114,10 +114,9 @@ export const createMember = async (req, res) => {
       bloodGroup,
       maritalStatus,
       baptized,
-      emergencyContact,
+      baptizedDate,
       membershipDate,
       status,
-      notes,
     } = req.body;
 
     if (!name || !name.trim()) {
@@ -148,10 +147,9 @@ export const createMember = async (req, res) => {
       bloodGroup: bloodGroup ? bloodGroup.trim() : '',
       maritalStatus: maritalStatus || 'Single',
       baptized: baptized || 'Yes',
-      emergencyContact: emergencyContact ? emergencyContact.trim() : '',
+      baptizedDate: baptizedDate ? baptizedDate.trim() : '',
       membershipDate: membershipDate || new Date().toISOString().split('T')[0],
       status: status || 'Active',
-      notes: notes ? notes.trim() : '',
     };
 
     if (isDbConnected()) {

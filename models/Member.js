@@ -57,10 +57,9 @@ const memberSchema = new mongoose.Schema(
       enum: ['Yes', 'No'],
       default: 'Yes',
     },
-    emergencyContact: {
+    baptizedDate: {
       type: String,
       default: '',
-      trim: true,
     },
     membershipDate: {
       type: String,
@@ -70,11 +69,6 @@ const memberSchema = new mongoose.Schema(
       type: String,
       enum: ['Active', 'Inactive'],
       default: 'Active',
-    },
-    notes: {
-      type: String,
-      default: '',
-      trim: true,
     },
   },
   {
