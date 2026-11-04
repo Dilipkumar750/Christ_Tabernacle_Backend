@@ -31,7 +31,7 @@ const DEFAULT_STORE = {
       _id: 'hero_1',
       title: "Christ's Tabernacle Prayer & Worship Centre",
       subtitle: 'A House of Prayer • A Place of Deliverance • A Centre of Divine Healing',
-      tag: 'Established 2026',
+      tag: 'Established 2016',
       verse: 'Isaiah 56:7',
       actionText: 'Plan a Visit',
       actionLink: '/contact',
